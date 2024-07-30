@@ -42,7 +42,11 @@ class KernelBasedHGR(KernelBasedMetric, ABC):
         else:
             f_numpy = self.backend.numpy(f)
             g_numpy = self.backend.numpy(g)
+            print("DEBUG: inside indicator - f_numpy =", f_numpy)
+            print("DEBUG: inside indicator - g_numpy =", g_numpy)
             fg_numpy = np.concatenate((f, -g), axis=1)
+            print("DEBUG: somehow i managed to concatenate them")
+            print("DEBUG: inside indicator - fg_numpy =", fg_numpy)
 
             # define the function to optimize as the least square problem:
             #   - func:   || F @ alpha - G @ beta ||_2^2 =

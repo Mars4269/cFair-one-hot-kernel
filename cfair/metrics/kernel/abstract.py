@@ -184,17 +184,26 @@ class KernelBasedMetric(CopulaMetric):
         return (f_columns, f_indices), (g_columns, g_indices)
 
     @final
-    def _result(self, a, b, kernel_a: bool, kernel_b: bool, a0: Optional, b0: Optional) -> Result:
+    def _result(self, a, b, kernel_a: bool, kernel_b: bool, a0: Optional, b0: Optional, categorical: bool = False) -> Result:
         # build the kernel matrices, compute their original degrees, and get the linearly independent indices
         f = self.kernel_a(a) if kernel_a else [a]
         g = self.kernel_b(b) if kernel_b else [b]
         degree_a, degree_b = len(f), len(g)
         (f, f_indices), (g, g_indices) = self._indices(f=f, g=g)
         # compute the original degrees of the matrices
+        print("DEBUG: inside result - f =", f)
+        print("DEBUG: inside result - f len =", len(f))
+        print("DEBUG: inside result - g =", g)
+        print("DEBUG: inside result - g len =", len(g))
+        # if not categorical:                       CATEGORICAL EXPERIMENT
         f = self.backend.stack(f, axis=1)
         f = f - self.backend.mean(f, axis=0)
         g = self.backend.stack(g, axis=1)
         g = g - self.backend.mean(g, axis=0)
+        print("DEBUG: inside result - f after strange things =", f)
+        print("DEBUG: inside result - f len =", len(f))
+        print("DEBUG: inside result - g after strange things =", g)
+        print("DEBUG: inside result - g len =", len(g))
         # compute the indicator value and the coefficients using the slim matrices
         val, alp, bet = self._indicator(
             f=f,
@@ -202,11 +211,15 @@ class KernelBasedMetric(CopulaMetric):
             a0=None if a0 is None else a0[f_indices],
             b0=None if b0 is None else b0[g_indices]
         )
+        # if not categorical:                       CATEGORICAL EXPERIMENT
         # reconstruct alpha and beta by adding zeros for the ignored indices
         alpha = np.zeros(degree_a)
         alpha[f_indices] = alp
         beta = np.zeros(degree_b)
         beta[g_indices] = bet
+        # else:                                     CATEGORICAL EXPERIMENT
+            # alpha = alp
+            # beta = bet
         # return the result instance
         return KernelBasedMetric.Result(
             a=a,
@@ -290,10 +303,10 @@ class DoubleKernelMetric(KernelBasedMetric, ABC):
     def kernel_b(self, b) -> list:
         return self._kernel_b(b)
 
-    def _compute(self, a, b) -> KernelBasedMetric.Result:
+    def _compute(self, a, b, categorical = False) -> KernelBasedMetric.Result:
         # noinspection PyUnresolvedReferences
         a0, b0 = (None, None) if self.last_result is None else (self.last_result.alpha, self.last_result.beta)
-        return self._result(a=a, b=b, kernel_a=True, kernel_b=True, a0=a0, b0=b0)
+        return self._result(a=a, b=b, kernel_a=True, kernel_b=True, a0=a0, b0=b0, categorical=categorical)
 
 
 class SingleKernelMetric(KernelBasedMetric, ABC):
@@ -359,11 +372,11 @@ class SingleKernelMetric(KernelBasedMetric, ABC):
     def kernel_b(self, b) -> list:
         return self.kernel(b)
 
-    def _compute(self, a, b) -> KernelBasedMetric.Result:
+    def _compute(self, a, b, categorical = False) -> KernelBasedMetric.Result:
         # noinspection PyUnresolvedReferences
         a0, b0 = (None, None) if self.last_result is None else (self.last_result.alpha, self.last_result.beta)
-        res_a = self._result(a=a, b=b, kernel_a=True, kernel_b=False, a0=a0, b0=None)
-        res_b = self._result(a=a, b=b, kernel_a=False, kernel_b=True, a0=None, b0=b0)
+        res_a = self._result(a=a, b=b, kernel_a=True, kernel_b=False, a0=a0, b0=None, categorical=categorical)
+        res_b = self._result(a=a, b=b, kernel_a=False, kernel_b=True, a0=None, b0=b0, categorical=categorical)
         val_a = res_a.value
         val_b = res_b.value
         if val_a > val_b:
