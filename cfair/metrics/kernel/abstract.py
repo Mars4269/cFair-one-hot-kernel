@@ -191,19 +191,19 @@ class KernelBasedMetric(CopulaMetric):
         degree_a, degree_b = len(f), len(g)
         (f, f_indices), (g, g_indices) = self._indices(f=f, g=g)
         # compute the original degrees of the matrices
-        print("DEBUG: inside result - f =", f)
-        print("DEBUG: inside result - f len =", len(f))
-        print("DEBUG: inside result - g =", g)
-        print("DEBUG: inside result - g len =", len(g))
+        # print("DEBUG: inside result - f =", f)
+        # print("DEBUG: inside result - f len =", len(f))
+        # print("DEBUG: inside result - g =", g)
+        # print("DEBUG: inside result - g len =", len(g))
         # if not categorical:                       CATEGORICAL EXPERIMENT
         f = self.backend.stack(f, axis=1)
         f = f - self.backend.mean(f, axis=0)
         g = self.backend.stack(g, axis=1)
         g = g - self.backend.mean(g, axis=0)
-        print("DEBUG: inside result - f after strange things =", f)
-        print("DEBUG: inside result - f len =", len(f))
-        print("DEBUG: inside result - g after strange things =", g)
-        print("DEBUG: inside result - g len =", len(g))
+        # print("DEBUG: inside result - f after strange things =", f)
+        # print("DEBUG: inside result - f len =", len(f))
+        # print("DEBUG: inside result - g after strange things =", g)
+        # print("DEBUG: inside result - g len =", len(g))
         # compute the indicator value and the coefficients using the slim matrices
         val, alp, bet = self._indicator(
             f=f,
