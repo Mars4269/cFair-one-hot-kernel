@@ -127,8 +127,8 @@ class KernelBasedMetric(CopulaMetric):
     def _indices(self, f: list, g: list) -> Tuple[Tuple[list, List[int]], Tuple[list, List[int]]]:
         def independent(m):
             # add the bias to the matrix
-            b = np.ones(shape=(len(m), 1))
-            m = np.concatenate((b, m), axis=1)
+            b = np.ones(shape=(len(m), 1))            
+            m = np.concatenate((b, m), axis=1)        
             # compute the QR factorization
             r = scipy.linalg.qr(m, mode='r')[0]
             # build the diagonal of the R matrix (excluding the bias column)
