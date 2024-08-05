@@ -78,8 +78,10 @@ class KernelBasedHGR(KernelBasedMetric, ABC):
                 ub=1
             )
             # if no guess is provided, set the initial point as [ 1 / std(F @ 1) | 1 / std(G @ 1) ] then solve
+                           
             a0 = np.ones(degree_a) / np.sqrt(f_numpy.sum(axis=1).var(ddof=0) + self.eps) if a0 is None else a0
             b0 = np.ones(degree_b) / np.sqrt(g_numpy.sum(axis=1).var(ddof=0) + self.eps) if b0 is None else b0
+
             x0 = np.concatenate((a0, b0))
             s = minimize(
                 _fun,
